@@ -1,0 +1,12 @@
+{
+  "ID": "8F9E7D6C5B4A3E2D1C0B9A8F7E6D5C4B",
+  "ActionKeyword": "w",
+  "Name": "Windsurf Workspaces",
+  "Description": "Quickly open recent workspaces and remote machines in Windsurf.",
+  "Author": "Pierre-Louis Favreau",
+  "Version": "1.0.0",
+  "Language": "typescript",
+  "Website": "https://github.com/plfavreau/windsurf-flow-launcher-plugin",
+  "IcoPath": "icon.png",
+  "ExecuteFileName": "build/index.js"
+}

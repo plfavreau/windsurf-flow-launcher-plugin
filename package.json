@@ -1,0 +1,28 @@
+{
+  "name": "flow-plugin-windsurf",
+  "version": "1.0.0",
+  "description": "Flow Launcher plugin to quickly open recent Windsurf workspaces and remote machines",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "dev": "npm run build && echo 'Build complete! Reload plugin in Flow Launcher (Ctrl+Shift+P > Reload Plugin)'"
+  },
+  "keywords": [
+    "flow-launcher",
+    "windsurf",
+    "vscode",
+    "workspace"
+  ],
+  "author": "Pierre-Louis Favreau",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "ssh-config": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "typescript": "^5.0.0"
+  }
+}
