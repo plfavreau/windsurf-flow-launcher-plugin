@@ -65,6 +65,36 @@ The plugin:
 4. Caches results for fast subsequent queries
 5. Launches Windsurf with the selected workspace URI
 
+## Development
+
+### Building locally
+
+```bash
+# Install dependencies
+npm install
+
+# Build the TypeScript code
+npm run build
+
+# Package for distribution
+npm run package
+```
+
+### Automated Release
+
+This project uses GitHub Actions for automated build and release. The workflow:
+
+- **Triggers**: On push to main branch or manual workflow dispatch
+- **Builds**: Compiles TypeScript code using `npm run build`
+- **Packages**: Creates a zip file with the plugin
+- **Releases**: Automatically creates a GitHub release with the version from `plugin.json`
+
+To release a new version:
+
+1. Update the version in `plugin.json`
+2. Push to the main branch
+3. The workflow will automatically create a release with the new version
+
 ## Troubleshooting
 
 ### Plugin doesn't show any workspaces

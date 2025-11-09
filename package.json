@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "dev": "npm run build && echo 'Build complete! Reload plugin in Flow Launcher (Ctrl+Shift+P > Reload Plugin)'"
+    "dev": "npm run build && echo 'Build complete! Reload plugin in Flow Launcher (Ctrl+Shift+P > Reload Plugin)'",
+    "package": "npm run build && zip -r Flow.Launcher.Plugin.Windsurf.zip . -x '*.git*' -x 'node_modules/*' -x '*.zip'"
   },
   "keywords": [
     "flow-launcher",
