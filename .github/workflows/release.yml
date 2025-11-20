@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -32,9 +32,18 @@ jobs:
         run: npm ci
       - name: Build TypeScript
         run: npm run build
-      - name: Package plugin
+      - name: Prepare plugin package
         run: |
-          zip -r Flow.Launcher.Plugin.Windsurf.zip . -x '*.git*' -x '*.zip'
+          New-Item -ItemType Directory -Path plugin-package -Force
+          Copy-Item -Path build -Destination plugin-package -Recurse
+          Copy-Item -Path package.json, package-lock.json, plugin.json, icon.png, LICENSE, README.md -Destination plugin-package
+        shell: powershell
+      - name: Install production dependencies
+        working-directory: plugin-package
+        run: npm ci --omit=dev
+      - name: Create zip archive
+        run: Compress-Archive -Path plugin-package\* -DestinationPath Flow.Launcher.Plugin.Windsurf.zip -Force
+        shell: powershell
       - name: Publish
         uses: softprops/action-gh-release@v2
         with:
