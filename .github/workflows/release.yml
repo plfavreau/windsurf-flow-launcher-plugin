@@ -35,7 +35,7 @@ jobs:
       - name: Prepare plugin package
         run: |
           New-Item -ItemType Directory -Path plugin-package -Force
-          Get-ChildItem -Exclude .github, node_modules, plugin-package | Copy-Item -Destination plugin-package -Recurse
+          Get-ChildItem -Exclude .github | Copy-Item -Destination plugin-package -Recurse
         shell: powershell
       - name: Install production dependencies
         working-directory: plugin-package
