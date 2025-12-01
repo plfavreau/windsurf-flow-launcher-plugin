@@ -37,9 +37,6 @@ jobs:
           New-Item -ItemType Directory -Path plugin-package -Force
           Get-ChildItem -Exclude .github, plugin-package | Copy-Item -Destination plugin-package -Recurse
         shell: powershell
-      - name: Install production dependencies
-        working-directory: plugin-package
-        run: npm ci --omit=dev
       - name: Create zip archive
         run: Compress-Archive -Path plugin-package\* -DestinationPath Flow.Launcher.Plugin.Windsurf.zip -Force
         shell: powershell
