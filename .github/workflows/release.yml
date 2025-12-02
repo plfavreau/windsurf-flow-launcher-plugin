@@ -1,52 +1,119 @@
 name: Publish Release
-
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths-ignore:
       - .github/workflows/*
-
 permissions:
   contents: write
-
 jobs:
   publish:
     runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Ensure we get LF line endings like your local files
+          fetch-depth: 0
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
+
       - name: Get version
         id: version
         uses: notiz-dev/github-action-json-property@release
         with:
           path: "plugin.json"
           prop_path: "Version"
+
       - run: echo "Version ${{steps.version.outputs.prop}}"
+
       - name: Install dependencies
-        run: npm i
+        run: npm ci
+
       - name: Build TypeScript
         run: npm run build
+
       - name: Prepare plugin package
         run: |
+          # Create the plugin directory
           New-Item -ItemType Directory -Path windsurf-flow-launcher-plugin -Force
-          $excludes = @(".github", ".git", "windsurf-flow-launcher-plugin")
-          Get-ChildItem -Path . | Where-Object { $excludes -notcontains $_.Name } | Copy-Item -Destination windsurf-flow-launcher-plugin -Recurse
+
+          # Define what to exclude (things that shouldn't be in the plugin)
+          $excludes = @('.github', '.git', 'windsurf-flow-launcher-plugin', 'node_modules', '.gitignore', '.gitattributes', 'tsconfig.json', 'src')
+
+          # Copy everything except excludes
+          Get-ChildItem -Path . -Force | Where-Object { 
+            $excludes -notcontains $_.Name 
+          } | ForEach-Object {
+            Copy-Item -Path $_.FullName -Destination windsurf-flow-launcher-plugin -Recurse -Force
+          }
+
+          # Verify the structure
+          Write-Host "Contents of windsurf-flow-launcher-plugin:"
+          Get-ChildItem -Path windsurf-flow-launcher-plugin -Recurse | Select-Object FullName
         shell: powershell
+
       - name: Create zip archive
-        run: Compress-Archive -Path windsurf-flow-launcher-plugin -DestinationPath Flow.Launcher.Plugin.Windsurf.zip -Force
+        run: |
+          # Remove any existing zip
+          if (Test-Path Flow.Launcher.Plugin.Windsurf.zip) {
+            Remove-Item Flow.Launcher.Plugin.Windsurf.zip -Force
+          }
+
+          # Create the zip with proper compression
+          Compress-Archive -Path windsurf-flow-launcher-plugin -DestinationPath Flow.Launcher.Plugin.Windsurf.zip -CompressionLevel Optimal -Force
+
+          # Verify the zip was created
+          if (Test-Path Flow.Launcher.Plugin.Windsurf.zip) {
+            Write-Host "Zip created successfully"
+            Write-Host "Zip size: $((Get-Item Flow.Launcher.Plugin.Windsurf.zip).Length) bytes"
+          } else {
+            Write-Error "Failed to create zip"
+            exit 1
+          }
         shell: powershell
+
+      - name: Verify zip contents
+        run: |
+          # Extract to temp location to verify
+          $tempDir = "temp_verify"
+          Expand-Archive -Path Flow.Launcher.Plugin.Windsurf.zip -DestinationPath $tempDir -Force
+
+          Write-Host "Zip contents structure:"
+          Get-ChildItem -Path $tempDir -Recurse | Select-Object FullName
+
+          # Check if plugin.json exists in the right place
+          $pluginJsonPath = Join-Path $tempDir "windsurf-flow-launcher-plugin\plugin.json"
+          if (Test-Path $pluginJsonPath) {
+            Write-Host "✓ plugin.json found at correct location"
+            Get-Content $pluginJsonPath | Write-Host
+          } else {
+            Write-Error "✗ plugin.json NOT found at expected location"
+            exit 1
+          }
+
+          # Cleanup
+          Remove-Item $tempDir -Recurse -Force
+        shell: powershell
+
       - name: Publish
         uses: softprops/action-gh-release@v2
         with:
           files: "Flow.Launcher.Plugin.Windsurf.zip"
           tag_name: "v${{steps.version.outputs.prop}}"
           name: "Release v${{steps.version.outputs.prop}}"
+          body: |
+            ## Installation
+            1. Download `Flow.Launcher.Plugin.Windsurf.zip`
+            2. Extract to Flow Launcher plugins directory
+            3. Restart Flow Launcher
+
+            ## Changes
+            Auto-generated release for version ${{steps.version.outputs.prop}}
           overwrite_files: true
           draft: false
           prerelease: false
