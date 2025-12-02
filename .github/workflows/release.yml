@@ -34,12 +34,11 @@ jobs:
         run: npm run build
       - name: Prepare plugin package
         run: |
-          New-Item -ItemType Directory -Path plugin-package -Force
-          Get-ChildItem -Exclude .github, plugin-package | Copy-Item -Destination plugin-package -Recurse
+          New-Item -ItemType Directory -Path windsurf-flow-launcher-plugin -Force
+          Get-ChildItem -Exclude .github, .git, windsurf-flow-launcher-plugin | Copy-Item -Destination windsurf-flow-launcher-plugin -Recurse
         shell: powershell
       - name: Create zip archive
-        working-directory: plugin-package
-        run: Compress-Archive -Path * -DestinationPath ../Flow.Launcher.Plugin.Windsurf.zip -Force
+        run: Compress-Archive -Path windsurf-flow-launcher-plugin -DestinationPath Flow.Launcher.Plugin.Windsurf.zip -Force
         shell: powershell
       - name: Publish
         uses: softprops/action-gh-release@v2
