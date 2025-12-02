@@ -89,10 +89,10 @@ jobs:
           # Check if plugin.json exists in the right place
           $pluginJsonPath = Join-Path $tempDir "windsurf-flow-launcher-plugin\plugin.json"
           if (Test-Path $pluginJsonPath) {
-            Write-Host "✓ plugin.json found at correct location"
+            Write-Host "[OK] plugin.json found at correct location"
             Get-Content $pluginJsonPath | Write-Host
           } else {
-            Write-Error "✗ plugin.json NOT found at expected location"
+            Write-Host "[ERROR] plugin.json NOT found at expected location"
             exit 1
           }
 
