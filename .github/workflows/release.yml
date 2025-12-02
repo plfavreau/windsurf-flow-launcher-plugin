@@ -38,7 +38,12 @@ jobs:
           Get-ChildItem -Exclude .github, .git, windsurf-flow-launcher-plugin | Copy-Item -Destination windsurf-flow-launcher-plugin -Recurse
         shell: powershell
       - name: Create zip archive
-        run: Compress-Archive -Path windsurf-flow-launcher-plugin -DestinationPath Flow.Launcher.Plugin.Windsurf.zip -Force
+        run: |
+          Write-Host "Contents of plugin folder:"
+          Get-ChildItem windsurf-flow-launcher-plugin
+          Compress-Archive -Path windsurf-flow-launcher-plugin -DestinationPath Flow.Launcher.Plugin.Windsurf.zip -Force
+          Write-Host "Zip created:"
+          Get-ChildItem *.zip
         shell: powershell
       - name: Publish
         uses: softprops/action-gh-release@v2
