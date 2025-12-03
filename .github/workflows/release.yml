@@ -31,36 +31,32 @@ jobs:
           npm ci
           npm run build
 
-      - name: Prepare and zip plugin
+      - name: Prepare plugin package
         run: |
-          # Create plugin directory
           New-Item -ItemType Directory -Path windsurf-flow-launcher-plugin -Force
+          Copy-Item -Path "build" -Destination "windsurf-flow-launcher-plugin" -Recurse
+          Copy-Item -Path "plugin.json", "package.json", "package-lock.json", "icon.png", "LICENSE", "README.md" -Destination "windsurf-flow-launcher-plugin"
+        shell: powershell
 
-          # Copy everything except excluded folders
-          Get-ChildItem -Path . -Force | Where-Object { 
-            $_.Name -notin @('node_modules', '.git', '.github', 'windsurf-flow-launcher-plugin')
-          } | Copy-Item -Destination windsurf-flow-launcher-plugin -Recurse -Force
+      - name: Install production dependencies
+        working-directory: windsurf-flow-launcher-plugin
+        run: npm ci --omit=dev
 
-          # Create zip with the plugin folder inside
-          Compress-Archive -Path windsurf-flow-launcher-plugin -DestinationPath windsurf-flow-launcher-plugin.zip -CompressionLevel Optimal -Force
-
+      - name: Create zip archive
+        run: |
+          Compress-Archive -Path windsurf-flow-launcher-plugin -DestinationPath Flow.Launcher.Plugin.Windsurf.zip -CompressionLevel Optimal -Force
           Write-Host "Zip created successfully"
-          Write-Host "Size: $((Get-Item windsurf-flow-launcher-plugin.zip).Length) bytes"
+          Write-Host "Size: $((Get-Item Flow.Launcher.Plugin.Windsurf.zip).Length) bytes"
         shell: powershell
 
       - name: Publish
         uses: softprops/action-gh-release@v2
         with:
-          files: "windsurf-flow-launcher-plugin.zip"
+          files: "Flow.Launcher.Plugin.Windsurf.zip"
           tag_name: "v${{steps.version.outputs.prop}}"
           name: "Release v${{steps.version.outputs.prop}}"
-          body: |
-            ## Installation
-            1. Download `windsurf-flow-launcher-plugin.zip`
-            2. Extract to Flow Launcher plugins directory
-            3. Restart Flow Launcher
-
-            ## Changes
-            Auto-generated release for version ${{steps.version.outputs.prop}}
+          overwrite_files: true
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
